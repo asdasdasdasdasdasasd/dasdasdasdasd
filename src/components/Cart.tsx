@@ -3,6 +3,7 @@ import { X, Plus, Minus, ShoppingBag, CreditCard, Shield } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import PaymentModal from './PaymentModal';
 import PaymentLogos from './PaymentLogos';
+import FreeShippingProgress from './FreeShippingProgress';
 
 const Cart: React.FC = () => {
   const { cart, removeFromCart, updateQuantity, toggleCart, clearCart } = useCart();
@@ -35,7 +36,7 @@ const Cart: React.FC = () => {
   }));
 
   const subtotal = cart.total;
-  const shipping = 0; // Free shipping
+  const shipping = subtotal >= 60 ? 0 : 4.99; // Free shipping over €60
   const tax = subtotal * 0.21; // 21% VAT for Netherlands
   const total = subtotal + shipping + tax;
 
@@ -59,6 +60,13 @@ const Cart: React.FC = () => {
                 <X className="h-6 w-6" />
               </button>
             </div>
+
+            {/* Free Shipping Progress */}
+            {cart.items.length > 0 && (
+              <div className="p-6 border-b border-gray-100">
+                <FreeShippingProgress currentTotal={subtotal} />
+              </div>
+            )}
 
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto p-6">
@@ -129,7 +137,11 @@ const Cart: React.FC = () => {
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-600">Shipping</span>
-                      <span className="text-green-600 font-semibold">Free</span>
+                      {shipping === 0 ? (
+                        <span className="text-emerald-600 font-semibold">Free</span>
+                      ) : (
+                        <span className="text-gray-900 font-medium">€{shipping.toFixed(2)}</span>
+                      )}
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-600">Tax (VAT 21%)</span>
@@ -162,7 +174,7 @@ const Cart: React.FC = () => {
                       <div>•</div>
                       <div>30-day returns</div>
                       <div>•</div>
-                      <div>Free shipping</div>
+                      <div>Free shipping over €60</div>
                     </div>
                     
                     {/* Payment Logos */}

@@ -7,9 +7,15 @@ interface PaymentLogosProps {
 
 const PaymentLogos: React.FC<PaymentLogosProps> = ({ size = 'md', className = '' }) => {
   const sizeClasses = {
-    sm: 'h-6',
-    md: 'h-8',
-    lg: 'h-10'
+    sm: 'h-5',
+    md: 'h-6',
+    lg: 'h-8'
+  };
+
+  const containerClasses = {
+    sm: 'p-1.5',
+    md: 'p-2',
+    lg: 'p-2.5'
   };
 
   const logos = [
@@ -46,16 +52,17 @@ const PaymentLogos: React.FC<PaymentLogosProps> = ({ size = 'md', className = ''
   ];
 
   return (
-    <div className={`flex items-center justify-center space-x-4 ${className}`}>
+    <div className={`flex items-center justify-center flex-wrap gap-2 ${className}`}>
       {logos.map((logo, index) => (
         <div 
           key={logo.name} 
-          className="flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200 bg-white rounded-lg p-2 shadow-sm border border-gray-100"
+          className={`flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200 bg-white rounded-lg shadow-sm border border-gray-100 ${containerClasses[size]} flex items-center justify-center`}
+          style={{ minWidth: size === 'sm' ? '32px' : size === 'md' ? '40px' : '48px' }}
         >
           <img
             src={logo.url}
             alt={logo.alt}
-            className={`${sizeClasses[size]} w-auto object-contain`}
+            className={`${sizeClasses[size]} w-auto object-contain max-w-full`}
             loading="lazy"
             onError={(e) => {
               // Fallback to text if image fails to load
@@ -63,7 +70,7 @@ const PaymentLogos: React.FC<PaymentLogosProps> = ({ size = 'md', className = ''
               target.style.display = 'none';
               const parent = target.parentElement;
               if (parent) {
-                parent.innerHTML = `<span class="text-xs font-medium text-gray-600 px-2 py-1">${logo.name}</span>`;
+                parent.innerHTML = `<span class="text-xs font-medium text-gray-600 px-1">${logo.name}</span>`;
               }
             }}
           />

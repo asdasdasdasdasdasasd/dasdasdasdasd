@@ -11,6 +11,7 @@ interface SalesData {
 const SalesNotification: React.FC = () => {
   const [currentSale, setCurrentSale] = useState<SalesData | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const salesData: SalesData[] = [
     { name: 'Emma', location: 'Amsterdam, NL', product: 'SYMORA Posture Corrector Pro', timeAgo: '2 minutes ago' },
@@ -27,11 +28,21 @@ const SalesNotification: React.FC = () => {
     const showNotification = () => {
       const randomSale = salesData[Math.floor(Math.random() * salesData.length)];
       setCurrentSale(randomSale);
-      setIsVisible(true);
+      setIsAnimating(true);
+      
+      // Smooth fade in
+      setTimeout(() => {
+        setIsVisible(true);
+      }, 50);
 
-      // Hide after 5 seconds
+      // Smooth fade out after 5 seconds
       setTimeout(() => {
         setIsVisible(false);
+        // Wait for fade out animation to complete before hiding
+        setTimeout(() => {
+          setIsAnimating(false);
+          setCurrentSale(null);
+        }, 500);
       }, 5000);
     };
 
@@ -52,18 +63,24 @@ const SalesNotification: React.FC = () => {
 
   const handleClose = () => {
     setIsVisible(false);
+    setTimeout(() => {
+      setIsAnimating(false);
+      setCurrentSale(null);
+    }, 500);
   };
 
-  if (!currentSale || !isVisible) return null;
+  if (!currentSale || !isAnimating) return null;
 
   return (
-    <div className={`fixed bottom-6 left-6 z-50 max-w-sm transition-all duration-500 transform ${
-      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+    <div className={`fixed bottom-6 left-6 z-50 max-w-sm transition-all duration-500 ease-out transform ${
+      isVisible 
+        ? 'translate-y-0 opacity-100 scale-100' 
+        : 'translate-y-8 opacity-0 scale-95'
     }`}>
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 animate-slideInLeft">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 backdrop-blur-sm">
         <div className="flex items-start space-x-3">
-          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <ShoppingBag className="h-5 w-5 text-green-600" />
+          <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <ShoppingBag className="h-5 w-5 text-emerald-600" />
           </div>
           
           <div className="flex-1 min-w-0">
@@ -71,7 +88,7 @@ const SalesNotification: React.FC = () => {
               <p className="text-sm font-semibold text-gray-900">{currentSale.name} just purchased</p>
               <button
                 onClick={handleClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 hover:bg-gray-100 rounded-full"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -90,8 +107,8 @@ const SalesNotification: React.FC = () => {
         </div>
         
         {/* Progress bar */}
-        <div className="mt-3 w-full bg-gray-200 rounded-full h-1">
-          <div className="bg-green-600 h-1 rounded-full animate-pulse" style={{ width: '75%' }}></div>
+        <div className="mt-3 w-full bg-gray-100 rounded-full h-1">
+          <div className="bg-emerald-500 h-1 rounded-full transition-all duration-1000 ease-out" style={{ width: '75%' }}></div>
         </div>
       </div>
     </div>

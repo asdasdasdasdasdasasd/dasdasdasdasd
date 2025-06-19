@@ -1,5 +1,5 @@
 import React from 'react';
-import { Percent, Flame } from 'lucide-react';
+import { Percent, Tag } from 'lucide-react';
 
 interface DiscountBadgeProps {
   originalPrice: number;
@@ -35,23 +35,23 @@ const DiscountBadge: React.FC<DiscountBadgeProps> = ({
 
   if (variant === 'hot') {
     return (
-      <div className={`inline-flex items-center bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full font-bold animate-pulse ${sizeClasses[size]} ${className}`}>
-        <Flame className={`${iconSizes[size]} mr-1`} />
-        HOT DEAL
+      <div className={`inline-flex items-center bg-slate-700 text-white rounded-full font-medium shadow-sm ${sizeClasses[size]} ${className}`}>
+        <Tag className={`${iconSizes[size]} mr-1`} />
+        LIMITED
       </div>
     );
   }
 
   if (variant === 'amount') {
     return (
-      <div className={`inline-flex items-center bg-green-600 text-white rounded-full font-bold ${sizeClasses[size]} ${className}`}>
+      <div className={`inline-flex items-center bg-emerald-600 text-white rounded-full font-medium shadow-sm ${sizeClasses[size]} ${className}`}>
         Save €{discountAmount.toFixed(2)}
       </div>
     );
   }
 
   return (
-    <div className={`inline-flex items-center bg-red-600 text-white rounded-full font-bold ${sizeClasses[size]} ${className}`}>
+    <div className={`inline-flex items-center bg-slate-600 text-white rounded-full font-medium shadow-sm ${sizeClasses[size]} ${className}`}>
       <Percent className={`${iconSizes[size]} mr-1`} />
       {discountPercentage}% OFF
     </div>

@@ -7,7 +7,7 @@ import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 import SuccessPage from './components/SuccessPage';
 import Cart from './components/Cart';
-import CouponPopup from './components/CouponPopup';
+import EmailCapturePopup from './components/EmailCapturePopup';
 import { CartProvider } from './context/CartContext';
 import { Product } from './types';
 import { products } from './data/products';
@@ -15,9 +15,10 @@ import { products } from './data/products';
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showCouponPopup, setShowCouponPopup] = useState(false);
-  const [hasSeenCouponPopup, setHasSeenCouponPopup] = useState(false);
+  const [showEmailPopup, setShowEmailPopup] = useState(false);
+  const [hasSeenEmailPopup, setHasSeenEmailPopup] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [discountApplied, setDiscountApplied] = useState(false);
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
@@ -38,30 +39,39 @@ function App() {
     setCurrentPage('home');
   };
 
-  // Coupon popup logic - show after 5 seconds if not seen before
+  // Email popup logic - show after 25-40 seconds if not seen before
   useEffect(() => {
-    const hasSeenBefore = localStorage.getItem('symora-coupon-popup-seen');
+    const hasSeenBefore = localStorage.getItem('symora-email-popup-seen');
     const savedEmail = localStorage.getItem('symora-user-email');
+    const savedDiscount = localStorage.getItem('symora-discount-applied');
     
     if (savedEmail) {
       setUserEmail(savedEmail);
     }
     
+    if (savedDiscount) {
+      setDiscountApplied(true);
+    }
+    
     if (!hasSeenBefore && !savedEmail) {
+      // Random delay between 25-40 seconds
+      const delay = Math.random() * 15000 + 25000;
       const timer = setTimeout(() => {
-        setShowCouponPopup(true);
-      }, 5000); // Show after 5 seconds
+        setShowEmailPopup(true);
+      }, delay);
 
       return () => clearTimeout(timer);
     }
   }, []);
 
-  const handleCouponEmailSubmit = (email: string) => {
+  const handleEmailSubmit = (email: string) => {
     setUserEmail(email);
-    setHasSeenCouponPopup(true);
-    localStorage.setItem('symora-coupon-popup-seen', 'true');
+    setHasSeenEmailPopup(true);
+    setDiscountApplied(true);
+    localStorage.setItem('symora-email-popup-seen', 'true');
     localStorage.setItem('symora-user-email', email);
     localStorage.setItem('symora-discount-code', 'SAVE10');
+    localStorage.setItem('symora-discount-applied', 'true');
     
     // Show success toast
     import('react-hot-toast').then(({ default: toast }) => {
@@ -69,7 +79,7 @@ function App() {
         duration: 5000,
         position: 'top-center',
         style: {
-          background: '#10B981',
+          background: '#059669',
           color: 'white',
           fontWeight: 'bold',
           padding: '16px',
@@ -79,10 +89,10 @@ function App() {
     });
   };
 
-  const handleCloseCouponPopup = () => {
-    setShowCouponPopup(false);
-    setHasSeenCouponPopup(true);
-    localStorage.setItem('symora-coupon-popup-seen', 'true');
+  const handleCloseEmailPopup = () => {
+    setShowEmailPopup(false);
+    setHasSeenEmailPopup(true);
+    localStorage.setItem('symora-email-popup-seen', 'true');
   };
 
   // Listen for success page navigation
@@ -131,12 +141,12 @@ function App() {
                       {/* Product badges */}
                       <div className="absolute top-2 left-2 z-10 flex flex-col space-y-1">
                         {product.originalPrice && product.originalPrice > product.price && (
-                          <div className="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                          <div className="bg-slate-600 text-white px-2 py-1 rounded-full text-xs font-medium">
                             {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
                           </div>
                         )}
                         {product.isBestSeller && (
-                          <div className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                          <div className="bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-medium">
                             BEST SELLER
                           </div>
                         )}
@@ -193,14 +203,14 @@ function App() {
       <div className="min-h-screen bg-white">
         <Toaster />
         <Header currentPage={currentPage} onNavigate={handleNavigate} />
-        <main>{renderCurrentPage()}</main>
+        <main className="w-full">{renderCurrentPage()}</main>
         <Cart />
         
-        {/* Coupon Popup */}
-        <CouponPopup
-          isOpen={showCouponPopup}
-          onClose={handleCloseCouponPopup}
-          onEmailSubmit={handleCouponEmailSubmit}
+        {/* Email Capture Popup */}
+        <EmailCapturePopup
+          isOpen={showEmailPopup}
+          onClose={handleCloseEmailPopup}
+          onEmailSubmit={handleEmailSubmit}
         />
       </div>
     </CartProvider>
